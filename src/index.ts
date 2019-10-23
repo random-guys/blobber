@@ -1,1 +1,1 @@
-export * from './blobber/blobber';
+export * from './blobber';

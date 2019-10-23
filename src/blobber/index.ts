@@ -1,1 +1,2 @@
-export * from '.';
+export * from './blobber';
+export * from './typings';
