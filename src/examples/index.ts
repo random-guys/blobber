@@ -1,10 +1,9 @@
 import { join } from 'path';
 import { Transform } from 'stream';
-import { OmiOptions } from '../blobber/typings';
 import { config } from 'dotenv';
 config();
 
-import Blobber from '../blobber/blobber';
+import { Blobber, OmiOptions } from '../blobber';
 
 const stream = async () => {
   try {

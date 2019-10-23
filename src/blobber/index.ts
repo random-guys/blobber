@@ -1,2 +1,2 @@
-export * from './blobber';
+export { default as Blobber } from './blobber';
 export * from './typings';
