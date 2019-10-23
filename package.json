@@ -1,0 +1,34 @@
+{
+  "name": "@random-guys/blobber",
+  "version": "0.0.8",
+  "description": "GoMoney Reports as Azure blobs",
+  "keywords": [],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc -p ./tsconfig.json",
+    "watch": "tsc -w -p ./tsconfig.json",
+    "test": "jest"
+  },
+  "author": "Raymond Tukpe <rtukpe@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@random-guys/omi": "^0.0.2",
+    "azure-storage": "^2.10.3",
+    "json2csv": "^4.5.4",
+    "pdfkit": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.5",
+    "@types/jest": "^23.3.13",
+    "@types/json2csv": "^4.5.0",
+    "@types/node": "^10.12.21",
+    "@types/pdfkit": "^0.10.3",
+    "dotenv": "^8.2.0",
+    "faker": "^4.1.0",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.2.4"
+  }
+}
