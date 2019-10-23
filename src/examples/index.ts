@@ -1,4 +1,3 @@
-import { createReadStream, createWriteStream } from 'fs';
 import { join } from 'path';
 import { Transform } from 'stream';
 import { OmiOptions } from '../blobber/typings';
