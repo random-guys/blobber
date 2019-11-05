@@ -73,7 +73,10 @@ export default class Blobber<T> {
 
     // default transform that doesn nothing
     const defaultTransform = new Transform({
+      writableObjectMode: true,
+      readableObjectMode: true,
       transform(chunk, encoding, callback) {
+        this.push(chunk);
         callback();
       }
     });
