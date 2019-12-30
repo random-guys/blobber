@@ -66,9 +66,6 @@ export default class Blobber<T> {
           createReadStream(options.blobPath)
         )
       );
-
-      // delete the file now that we're done.
-      unlinkSync(options.blobPath);
     });
 
     // default transform that doesn nothing
