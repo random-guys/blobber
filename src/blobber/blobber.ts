@@ -1,9 +1,9 @@
-import { resolve as resolvePath, basename, join } from 'path';
+import { resolve as resolvePath, basename } from 'path';
 import storage, { BlobService, date } from 'azure-storage';
 import { AsyncParser } from 'json2csv';
-import { createWriteStream, unlinkSync, createReadStream } from 'fs';
+import { createWriteStream, createReadStream } from 'fs';
 import { Transform } from 'stream';
-import { OmiOptions } from './typings';
+import { Options } from './typings';
 import Omi, { OmiEvent } from '@random-guys/omi';
 
 /**
@@ -34,6 +34,10 @@ export default class Blobber<T> {
     return this.blobService.getUrl(this.containerName, blobName);
   }
 
+  addRecord(record: T) {
+    this.omi.addOne(record);
+  }
+
   addRecords(records: T[]) {
     this.omi.addMany(records);
   }
@@ -44,10 +48,7 @@ export default class Blobber<T> {
    * @param callback the callback that returns the URL when the upload is complete
    * @param pathLike the absolute path for the file
    */
-  createBlobFromOmi<T>(
-    options: OmiOptions<T>,
-    callback: (val: string) => void
-  ) {
+  createBlobFromOmi(options: Options, callback: (val: string) => void) {
     const asyncParser = new AsyncParser(
       { fields: options.fields, header: true },
       {
@@ -62,7 +63,7 @@ export default class Blobber<T> {
       // stream the file to blob storage.
       callback(
         await this.streamLocalFile(
-          basename(options.blobPath),
+          options.useFullName ? options.blobPath : basename(options.blobPath),
           createReadStream(options.blobPath)
         )
       );
@@ -72,7 +73,7 @@ export default class Blobber<T> {
     const defaultTransform = new Transform({
       writableObjectMode: true,
       readableObjectMode: true,
-      transform(chunk, encoding, callback) {
+      transform(chunk, _encoding, callback) {
         this.push(chunk);
         callback();
       }
@@ -82,10 +83,7 @@ export default class Blobber<T> {
       ? options.transformer
       : defaultTransform;
 
-    this.omi
-      .pipe(transform)
-      .pipe(asyncParser.processor)
-      .pipe(fileStream);
+    this.omi.pipe(transform).pipe(asyncParser.processor).pipe(fileStream);
   }
 
   /**
@@ -115,7 +113,7 @@ export default class Blobber<T> {
         )
       );
 
-      stream.on('error', error => {
+      stream.on('error', (error: any) => {
         reject(error);
       });
 
@@ -130,7 +128,7 @@ export default class Blobber<T> {
    * @param filePath path to the file to be uploaded
    * @returns the file url
    */
-  async uploadLocalFile(filePath) {
+  async uploadLocalFile(filePath: string) {
     return new Promise<string>((resolve, reject) => {
       const fullPath = resolvePath(filePath);
       const blobName = basename(filePath);
@@ -139,7 +137,7 @@ export default class Blobber<T> {
         this.containerName,
         blobName,
         fullPath,
-        err => {
+        (err) => {
           if (err) return reject(err);
           return resolve(this.getFileUrl(blobName));
         }

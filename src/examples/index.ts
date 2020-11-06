@@ -3,16 +3,16 @@ import { Transform } from 'stream';
 import { config } from 'dotenv';
 config();
 
-import { Blobber, OmiOptions } from '../blobber';
+import { Blobber, Options } from '../blobber';
 
 const stream = async () => {
   try {
-    const blobber = new Blobber<Number>('exports');
+    const blobber = new Blobber<Number>('test');
 
     const uppercaseTransformer = new Transform({
       writableObjectMode: true,
       readableObjectMode: true,
-      transform(chunk, encoding, callback) {
+      transform(chunk, _encoding, callback) {
         this.push({ Name: chunk });
         callback();
       }
@@ -20,10 +20,11 @@ const stream = async () => {
 
     const blobPath = join(__dirname, '../../test.csv');
 
-    blobber.addRecords([...Array.from({ length: 5 }).keys()].map(i => i));
+    blobber.addRecords([...Array.from({ length: 5 }).keys()].map((i) => i));
 
-    const options: OmiOptions<string> = {
+    const options: Options = {
       transformer: uppercaseTransformer,
+      useFullName: true,
       fields: ['Name'],
       blobPath
     };
@@ -33,8 +34,8 @@ const stream = async () => {
     };
     blobber.createBlobFromOmi(options, printUrl);
 
-    blobber.addRecords([...Array.from({ length: 5 }).keys()].map(i => i));
-    blobber.addRecords([...Array.from({ length: 5 }).keys()].map(i => i));
+    blobber.addRecords([...Array.from({ length: 5 }).keys()].map((i) => i));
+    blobber.addRecords([...Array.from({ length: 5 }).keys()].map((i) => i));
     blobber.addRecords([null]);
   } catch (error) {
     console.log(error);
