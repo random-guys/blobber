@@ -9,7 +9,7 @@ const stream = async () => {
   try {
     const blobber = new Blobber<Number>('test');
 
-    const uppercaseTransformer = new Transform({
+    const transformer = new Transform({
       writableObjectMode: true,
       readableObjectMode: true,
       transform(chunk, _encoding, callback) {
@@ -18,15 +18,16 @@ const stream = async () => {
       }
     });
 
-    const blobPath = join(__dirname, '../../test.csv');
+    const localFilePath = join(__dirname, '../../test.csv');
+    const remoteFilePath = 'temp/test.csv';
 
     blobber.addRecords([...Array.from({ length: 5 }).keys()].map((i) => i));
 
     const options: Options = {
-      transformer: uppercaseTransformer,
-      useFullName: true,
       fields: ['Name'],
-      blobPath
+      remoteFilePath,
+      localFilePath,
+      transformer
     };
 
     const printUrl = (val: string) => {

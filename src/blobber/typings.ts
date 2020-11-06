@@ -2,14 +2,14 @@ import Omi from '@random-guys/omi';
 import { Transform } from 'stream';
 
 /**
- * @param omi the records to be written to the report.
  * @param fields the column titles.
- * @param blobPath the full path of the uploaded file.
+ * @param localFilePath the full local path of the uploaded file.
+ * @param remoteFilePath the relative path of the file when uploaded.
  * @param transformer an optional transformer
  */
 export interface Options {
   fields: string[];
-  blobPath: string;
-  useFullName?: boolean;
+  localFilePath: string;
+  remoteFilePath: string;
   transformer?: Transform;
 }

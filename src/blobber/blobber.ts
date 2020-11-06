@@ -57,14 +57,14 @@ export default class Blobber<T> {
       }
     );
 
-    const fileStream = createWriteStream(options.blobPath);
+    const fileStream = createWriteStream(options.localFilePath);
 
     this.omi.on(OmiEvent.END, async () => {
       // stream the file to blob storage.
       callback(
         await this.streamLocalFile(
-          options.useFullName ? options.blobPath : basename(options.blobPath),
-          createReadStream(options.blobPath)
+          options.remoteFilePath,
+          createReadStream(options.localFilePath)
         )
       );
     });
