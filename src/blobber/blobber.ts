@@ -5,6 +5,7 @@ import { createWriteStream, createReadStream } from 'fs';
 import { Transform } from 'stream';
 import { Options } from './typings';
 import Omi, { OmiEvent } from '@random-guys/omi';
+import { differenceInCalendarDays } from 'date-fns';
 
 /**
  * Thin wrapper around azure storage for uploading files to blob storage.
@@ -14,6 +15,7 @@ export default class Blobber<T> {
   private omi: Omi<T>;
   private containerName: string;
   private blobService: BlobService;
+  private regex: RegExp;
 
   /**
    * Creates a new Blobber instance
@@ -23,6 +25,7 @@ export default class Blobber<T> {
     this.omi = new Omi<T>([]);
     this.containerName = containerName;
     this.blobService = storage.createBlobService();
+    this.regex = /(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})/g
   }
 
   /**
@@ -143,5 +146,27 @@ export default class Blobber<T> {
         }
       );
     });
+  }
+
+  /**
+   * Deletes blobs older than 30 days
+   */
+  async deleteOldBlobs() {
+    return new Promise((resolve, reject) => {
+      this.blobService.listBlobsSegmented(this.containerName, null, (err, result) => {
+        if (err) return reject(err);
+        if (result) {
+          result.entries.forEach(blob => {
+            const blobDate = blob.name.match(this.regex)[0];
+            if (differenceInCalendarDays(new Date(), new Date(blobDate)) >= 30) {
+              this.blobService.deleteBlob(this.containerName, blob.name, (err, _response) => {
+                if (err) return reject(err);
+                return resolve(`${blob.name} deleted`)
+              })
+            }
+          })
+        }
+      })
+    })
   }
 }
