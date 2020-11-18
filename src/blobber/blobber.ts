@@ -161,10 +161,10 @@ export default class Blobber<T> {
             if (differenceInCalendarDays(new Date(), new Date(blobDate)) >= 30) {
               this.blobService.deleteBlob(this.containerName, blob.name, (err, _response) => {
                 if (err) return reject(err);
-                return resolve(`${blob.name} deleted`)
               })
             }
-          })
+          });
+          return resolve('finished deleting old blobs');
         }
       })
     })
