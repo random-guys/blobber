@@ -37,6 +37,19 @@ export default class Blobber<T> {
     return this.blobService.getUrl(this.containerName, blobName);
   }
 
+  /**
+   * Deletes a single blob and awaits the response
+   * @param blob - individual blob to be deleted
+   */
+  private deleteBlob(blob: BlobService.BlobResult) {
+    return new Promise((resolve, reject) => {
+      return this.blobService.deleteBlob(this.containerName, blob.name, (err, response) => {
+        if (err) reject(err);
+        resolve(response);
+      })
+    })
+  }
+
   addRecord(record: T) {
     this.omi.addOne(record);
   }
@@ -155,16 +168,17 @@ export default class Blobber<T> {
     return new Promise((resolve, reject) => {
       this.blobService.listBlobsSegmented(this.containerName, null, (err, result) => {
         if (err) return reject(err);
+        const promises = [];
         if (result) {
           result.entries.forEach(blob => {
             const blobDate = blob.name.match(this.regex)[0];
             if (differenceInCalendarDays(new Date(), new Date(blobDate)) >= 30) {
-              this.blobService.deleteBlob(this.containerName, blob.name, (err, _response) => {
-                if (err) return reject(err);
-              })
+              promises.push(this.deleteBlob(blob))
             }
           });
-          return resolve('finished deleting old blobs');
+          Promise.all(promises).then((_response) => {
+            resolve(`Finished deleting ${promises.length} old blobs`);
+          });
         }
       })
     })
